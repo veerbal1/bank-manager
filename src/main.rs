@@ -105,7 +105,7 @@ impl Bank {
         if from_id == to_id {
             return Err(String::from("Cannot transfer to the same account"));
         }
-    
+
         // Find source account index
         let mut source_index: Option<usize> = None;
         for (i, account) in self.accounts.iter().enumerate() {
@@ -117,12 +117,12 @@ impl Bank {
                 break;
             }
         }
-    
+
         let source_index = match source_index {
             Some(i) => i,
             None => return Err(String::from("Source account not found")),
         };
-    
+
         // Find destination account index
         let mut destination_index: Option<usize> = None;
         for (i, account) in self.accounts.iter().enumerate() {
@@ -131,16 +131,16 @@ impl Bank {
                 break;
             }
         }
-    
+
         let destination_index = match destination_index {
             Some(i) => i,
             None => return Err(String::from("Destination account not found")),
         };
-    
+
         // Perform transfer using indices
         self.accounts[source_index].balance -= amount;
         self.accounts[destination_index].balance += amount;
-    
+
         // Update transaction history
         self.accounts[source_index]
             .transaction_history
@@ -148,7 +148,7 @@ impl Bank {
         self.accounts[destination_index]
             .transaction_history
             .push(format!("Received {} from account {}", amount, from_id));
-    
+
         Ok(format!(
             "Transfer successful: {} transferred from account {} to account {}",
             amount, from_id, to_id
@@ -219,20 +219,18 @@ fn main() {
         Err(e) => println!("Error getting transaction history: {}", e),
     }
 
-
     // Test transfer
-match new_bank.transfer(1, 2, 200.0) {
-    Ok(val) => println!("{}", val),
-    Err(e) => println!("Error: {}", e),
-}
-// Test invalid transfer (non-existent account)
-match new_bank.transfer(1, 2, 200.0) {
-    Ok(val) => println!("{}", val),
-    Err(e) => println!("Error: {}", e),
-}
-// Test insufficient balance
-match new_bank.transfer(1, 2, 2000.0) {
-    Ok(val) => println!("{}", val),
-    Err(e) => println!("Error: {}", e),
-}
+    match new_bank.transfer(1, 2, 200.0) {
+        Ok(val) => println!("{}", val),
+        Err(e) => println!("Error: {}", e),
+    }
+    match new_bank.transfer(1, 2, 200.0) {
+        Ok(val) => println!("{}", val),
+        Err(e) => println!("Error: {}", e),
+    }
+    // Test insufficient balance
+    match new_bank.transfer(1, 2, 2000.0) {
+        Ok(val) => println!("{}", val),
+        Err(e) => println!("Error: {}", e),
+    }
 }
