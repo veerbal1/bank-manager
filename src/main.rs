@@ -92,6 +92,68 @@ impl Bank {
         }
         Err(String::from("Account not Found"))
     }
+
+    fn transfer(
+        &mut self,
+        from_id: TAccountID,
+        to_id: TAccountID,
+        amount: TBalanace,
+    ) -> Result<String, String> {
+        if amount < 0.0 {
+            return Err(String::from("Transfer amount must be positive"));
+        }
+        if from_id == to_id {
+            return Err(String::from("Cannot transfer to the same account"));
+        }
+    
+        // Find source account index
+        let mut source_index: Option<usize> = None;
+        for (i, account) in self.accounts.iter().enumerate() {
+            if account.id == from_id {
+                if account.balance < amount {
+                    return Err(String::from("Insufficient balance in source account"));
+                }
+                source_index = Some(i);
+                break;
+            }
+        }
+    
+        let source_index = match source_index {
+            Some(i) => i,
+            None => return Err(String::from("Source account not found")),
+        };
+    
+        // Find destination account index
+        let mut destination_index: Option<usize> = None;
+        for (i, account) in self.accounts.iter().enumerate() {
+            if account.id == to_id {
+                destination_index = Some(i);
+                break;
+            }
+        }
+    
+        let destination_index = match destination_index {
+            Some(i) => i,
+            None => return Err(String::from("Destination account not found")),
+        };
+    
+        // Perform transfer using indices
+        self.accounts[source_index].balance -= amount;
+        self.accounts[destination_index].balance += amount;
+    
+        // Update transaction history
+        self.accounts[source_index]
+            .transaction_history
+            .push(format!("Transferred {} to account {}", amount, to_id));
+        self.accounts[destination_index]
+            .transaction_history
+            .push(format!("Received {} from account {}", amount, from_id));
+    
+        Ok(format!(
+            "Transfer successful: {} transferred from account {} to account {}",
+            amount, from_id, to_id
+        ))
+    }
 }
 
 fn main() {
@@ -153,7 +215,24 @@ fn main() {
             for transaction in val.iter() {
                 println!("{}", transaction)
             }
-        },
+        }
         Err(e) => println!("Error getting transaction history: {}", e),
     }
+
+
+    // Test transfer
+match new_bank.transfer(1, 2, 200.0) {
+    Ok(val) => println!("{}", val),
+    Err(e) => println!("Error: {}", e),
+}
+// Test invalid transfer (non-existent account)
+match new_bank.transfer(1, 2, 200.0) {
+    Ok(val) => println!("{}", val),
+    Err(e) => println!("Error: {}", e),
+}
+// Test insufficient balance
+match new_bank.transfer(1, 2, 2000.0) {
+    Ok(val) => println!("{}", val),
+    Err(e) => println!("Error: {}", e),
+}
 }
